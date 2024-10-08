@@ -1,0 +1,12 @@
+[package]
+name = "SCG"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+
+[dependencies]
+hecs = "0.10.5"
+macroquad = { version = "0.4.13", default-features = false }
+macroquad-text = "0.2.0"
+rodio = "0.19.0"
+tokio = { version = "1.40.0", features = ["fs", "io-util", "rt"] }
