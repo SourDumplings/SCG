@@ -1,6 +1,7 @@
 use hecs::World;
 use macroquad::prelude::*;
 use macroquad_text::Fonts;
+use miniquad::conf::Icon;
 use miniquad::window::set_window_size;
 use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink, Source};
 use std::collections::HashMap;
@@ -153,6 +154,20 @@ fn window_conf() -> Conf
         fullscreen: false,
         high_dpi: true,
         sample_count: 1,
+        icon: Some(Icon {
+            small: include_bytes!("../res/icon/SCG_small.raw")
+                .to_vec()
+                .try_into()
+                .expect("Small icon size mismatch"),
+            medium: include_bytes!("../res/icon/SCG_medium.raw")
+                .to_vec()
+                .try_into()
+                .expect("Medium icon size mismatch"),
+            big: include_bytes!("../res/icon/SCG_big.raw")
+                .to_vec()
+                .try_into()
+                .expect("Big icon size mismatch"),
+        }), // 设置窗口图标
         platform: miniquad::conf::Platform {
             swap_interval: Some(0), // 1 表示开启 V-Sync，0 表示关闭 V-Sync
             ..Default::default()
@@ -289,8 +304,8 @@ fn draw_system(world: &World, resource_manager: &ResourceManager)
     {
         if let Some(texture) = resource_manager.get_texture("mushroom")
         {
-            // 使用整数像素位置
-            draw_texture(&texture, pos.x.round(), pos.y.round(), WHITE);
+            // 使用浮点像素位置
+            draw_texture(&texture, pos.x, pos.y, WHITE);
         }
         else
         {
