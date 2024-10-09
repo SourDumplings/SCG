@@ -1,15 +1,15 @@
 use crate::component::PositionComponent;
-use crate::resource_manager::ResourceManager;
+use crate::resource::SpriteManager;
 use hecs::World;
 use macroquad::prelude::*;
 
-pub fn render_system(world: &World, resource_manager: &ResourceManager)
+pub fn render_system(world: &World, sprite_manager: &SpriteManager)
 {
     for (_, pos) in world.query::<&PositionComponent>().iter()
     {
-        if let Some(texture) = resource_manager.get_texture("mushroom")
+        if let Some(texture) = sprite_manager.get_texture("mushroom")
         {
-            draw_texture(&texture, pos.x, pos.y, WHITE);
+            draw_texture(texture, pos.x, pos.y, WHITE);
         }
         else
         {
@@ -22,9 +22,5 @@ pub fn render_system(world: &World, resource_manager: &ResourceManager)
             30.0,
             WHITE,
         );
-
-        resource_manager
-            .fonts
-            .draw_text("你好，世界！", 20.0, 100.0, 30, WHITE);
     }
 }
