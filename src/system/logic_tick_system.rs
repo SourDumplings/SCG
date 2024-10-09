@@ -1,6 +1,6 @@
 use crate::component::{PositionComponent, VelocityComponent};
 use hecs::World;
-use macroquad::logging::*;
+use macroquad::miniquad::log;
 
 pub fn logic_tick_system(world: &mut World, delta_time: f32)
 {
@@ -8,8 +8,12 @@ pub fn logic_tick_system(world: &mut World, delta_time: f32)
         .query::<(&mut PositionComponent, &VelocityComponent)>()
         .iter()
     {
-        // TODO：格式化日志
-        trace!("Got entity {:?} has position and velocity!", entity);
+        // TODO：设置日志级别并格式化日志
+        log!(
+            log::Level::Trace,
+            "Got entity {:?} has position and velocity!",
+            entity
+        );
         pos.x += vel.x * delta_time;
         pos.y += vel.y * delta_time;
     }
