@@ -2,7 +2,6 @@ use rodio::{Decoder, OutputStreamHandle, Sink, Source};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufReader, Read};
-use std::path::Path;
 
 pub struct SoundManager
 {

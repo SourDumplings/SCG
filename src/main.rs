@@ -6,7 +6,6 @@ mod system;
 
 use core::window::window_conf;
 use core::world::initialize_world;
-use entity::player::{Player, PlayerSpawnParams};
 use hecs::World;
 use macroquad::prelude::*;
 use macroquad_text::Fonts;
@@ -32,17 +31,6 @@ async fn main()
     initialize_world(&mut world);
 
     sound_manager.play_sound("Bgm", true, 0.5);
-
-    // 创建一个包含 PositionComponent 和 VelocityComponent 组件的 Player 实体
-    Player::new(
-        &mut world,
-        PlayerSpawnParams {
-            x: 100.0,
-            y: 100.0,
-            vx: 10.0,
-            vy: 10.0,
-        },
-    );
 
     let mut fps_timer = Instant::now();
     let mut fps = 0;
