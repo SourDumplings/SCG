@@ -1,15 +1,15 @@
-mod components;
+mod component;
 mod resource_manager;
-mod systems;
+mod system;
 mod window;
 
-use components::{Position, Velocity};
+use component::{PositionComponent, VelocityComponent};
 use hecs::World;
 use macroquad::prelude::*;
 use resource_manager::ResourceManager;
 use rodio::OutputStream;
 use std::time::{Duration, Instant};
-use systems::{draw_fps_and_frame_time, draw_system, handle_input, update_system};
+use system::{fps_draw_system, input_handle_system, logic_tick_system, render_system};
 use tokio::runtime::Builder;
 use window::window_conf; // 导入 Instant 和 Duration
 
@@ -40,8 +40,8 @@ async fn main()
     resource_manager.play_sound("Bgm", true, 0.5);
 
     world.spawn((
-        Position { x: 100.0, y: 100.0 },
-        Velocity { x: 10.0, y: 10.0 },
+        PositionComponent { x: 100.0, y: 100.0 },
+        VelocityComponent { x: 10.0, y: 10.0 },
     ));
 
     let mut fps_timer = Instant::now();
@@ -56,11 +56,11 @@ async fn main()
         let delta_time = now.duration_since(last_frame_time).as_secs_f32();
         last_frame_time = now;
 
-        handle_input(&mut world, &mut resource_manager);
-        update_system(&mut world, delta_time);
+        input_handle_system(&mut world, &mut resource_manager);
+        logic_tick_system(&mut world, delta_time);
 
         clear_background(RED);
-        draw_system(&world, &resource_manager);
+        render_system(&world, &resource_manager);
 
         let time_elapsed = fps_timer.elapsed();
         if time_elapsed >= Duration::from_secs(1)
@@ -70,7 +70,7 @@ async fn main()
             fps_timer = Instant::now();
         }
 
-        draw_fps_and_frame_time(&resource_manager, frame_time, fps);
+        fps_draw_system(&resource_manager, frame_time, fps);
 
         let frame_duration = Duration::from_secs_f32(1.0 / target_fps as f32);
         let elapsed = now.elapsed();
