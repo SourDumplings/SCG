@@ -23,22 +23,10 @@ async fn main()
 
     let rt = Builder::new_current_thread().enable_all().build().unwrap();
 
-    rt.block_on(async {
-        sprite_manager
-            .load_texture("mushroom", "res/sprite/mushroom.png")
-            .await;
-        sound_manager.load_sound("Hit", "res/sound/Hit.mp3").await;
-        sound_manager
-            .load_sound("Bgm", "res/sound/WhenTheMorningComes.mp3")
-            .await;
-    });
+    initialize_resources(&mut sprite_manager, &mut sound_manager, &rt).await;
+    initialize_world(&mut world);
 
     sound_manager.play_sound("Bgm", true, 0.5);
-
-    world.spawn((
-        PositionComponent { x: 100.0, y: 100.0 },
-        VelocityComponent { x: 10.0, y: 10.0 },
-    ));
 
     let mut fps_timer = Instant::now();
     let mut fps = 0;
@@ -77,4 +65,29 @@ async fn main()
 
         next_frame().await;
     }
+}
+
+async fn initialize_resources(
+    sprite_manager: &mut SpriteManager,
+    sound_manager: &mut SoundManager,
+    rt: &tokio::runtime::Runtime,
+)
+{
+    rt.block_on(async {
+        sprite_manager
+            .load_texture("mushroom", "res/sprite/mushroom.png")
+            .await;
+        sound_manager.load_sound("Hit", "res/sound/Hit.mp3").await;
+        sound_manager
+            .load_sound("Bgm", "res/sound/WhenTheMorningComes.mp3")
+            .await;
+    });
+}
+
+fn initialize_world(world: &mut World)
+{
+    world.spawn((
+        PositionComponent { x: 100.0, y: 100.0 },
+        VelocityComponent { x: 10.0, y: 10.0 },
+    ));
 }
