@@ -1,17 +1,21 @@
 mod component;
+mod core;
+mod entity;
 mod resource;
 mod system;
-mod window;
 
-use component::{PositionComponent, VelocityComponent};
+use core::window::window_conf;
+use core::world::initialize_world;
+use entity::player::{Player, PlayerSpawnParams};
 use hecs::World;
 use macroquad::prelude::*;
+use macroquad_text::Fonts;
 use resource::{SoundManager, SpriteManager};
 use rodio::OutputStream;
-use std::time::{Duration, Instant};
+use std::path::Path;
+use std::time::{Duration, Instant}; // 导入 Instant 和 Duration
 use system::{fps_draw_system, input_handle_system, logic_tick_system, render_system};
 use tokio::runtime::Builder;
-use window::window_conf; // 导入 Instant 和 Duration
 
 #[macroquad::main(window_conf)]
 async fn main()
@@ -20,13 +24,25 @@ async fn main()
     let mut world = World::new();
     let mut sprite_manager = SpriteManager::new();
     let mut sound_manager = SoundManager::new(stream_handle);
+    let mut fonts = Fonts::default();
 
     let rt = Builder::new_current_thread().enable_all().build().unwrap();
 
-    initialize_resources(&mut sprite_manager, &mut sound_manager, &rt).await;
+    initialize_resources(&mut sprite_manager, &mut sound_manager, &rt, &mut fonts).await;
     initialize_world(&mut world);
 
     sound_manager.play_sound("Bgm", true, 0.5);
+
+    // 创建一个包含 PositionComponent 和 VelocityComponent 组件的 Player 实体
+    Player::new(
+        &mut world,
+        PlayerSpawnParams {
+            x: 100.0,
+            y: 100.0,
+            vx: 10.0,
+            vy: 10.0,
+        },
+    );
 
     let mut fps_timer = Instant::now();
     let mut fps = 0;
@@ -44,7 +60,7 @@ async fn main()
         logic_tick_system(&mut world, delta_time);
 
         clear_background(RED);
-        render_system(&world, &sprite_manager);
+        render_system(&world, &sprite_manager, &fonts);
 
         let time_elapsed = fps_timer.elapsed();
         if time_elapsed >= Duration::from_secs(1)
@@ -67,27 +83,34 @@ async fn main()
     }
 }
 
-async fn initialize_resources(
+async fn initialize_resources<'a>(
     sprite_manager: &mut SpriteManager,
     sound_manager: &mut SoundManager,
     rt: &tokio::runtime::Runtime,
+    fonts: &mut Fonts<'a>,
 )
 {
+    let project_root = env!("CARGO_MANIFEST_DIR");
+    let mushroom_texture_path = Path::new(project_root).join("res/sprite/mushroom.png");
+    let hit_sound_path = Path::new(project_root).join("res/sound/Hit.mp3");
+    let bgm_sound_path = Path::new(project_root).join("res/sound/WhenTheMorningComes.mp3");
+    let font_path = Path::new(project_root).join("res/font/Jinglei.ttf");
+
     rt.block_on(async {
         sprite_manager
-            .load_texture("mushroom", "res/sprite/mushroom.png")
+            .load_texture("mushroom", mushroom_texture_path.to_str().unwrap())
             .await;
-        sound_manager.load_sound("Hit", "res/sound/Hit.mp3").await;
         sound_manager
-            .load_sound("Bgm", "res/sound/WhenTheMorningComes.mp3")
+            .load_sound("Hit", hit_sound_path.to_str().unwrap())
             .await;
+        sound_manager
+            .load_sound("Bgm", bgm_sound_path.to_str().unwrap())
+            .await;
+        fonts
+            .load_font_from_bytes(
+                "simhei",
+                &std::fs::read(font_path).expect("Failed to read font file"),
+            )
+            .unwrap();
     });
-}
-
-fn initialize_world(world: &mut World)
-{
-    world.spawn((
-        PositionComponent { x: 100.0, y: 100.0 },
-        VelocityComponent { x: 10.0, y: 10.0 },
-    ));
 }
