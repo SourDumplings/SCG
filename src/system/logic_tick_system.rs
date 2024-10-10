@@ -1,6 +1,6 @@
 use crate::component::{PositionComponent, VelocityComponent};
 use hecs::World;
-use log::trace;
+use crate::log_trace;
 
 pub fn logic_tick_system(world: &mut World, delta_time: f32)
 {
@@ -8,7 +8,7 @@ pub fn logic_tick_system(world: &mut World, delta_time: f32)
         .query::<(&mut PositionComponent, &VelocityComponent)>()
         .iter()
     {
-        trace!("Got entity {:?} has position and velocity!", entity);
+        log_trace!("Got entity {:?} has position and velocity!", entity);
         pos.x += vel.x * delta_time;
         pos.y += vel.y * delta_time;
     }

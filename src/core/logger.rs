@@ -1,4 +1,3 @@
-use log::{debug, error, info, trace, warn};
 use log4rs::{
     append::console::ConsoleAppender,
     append::rolling_file::{
@@ -11,6 +10,41 @@ use log4rs::{
     encode::pattern::PatternEncoder,
 };
 use std::env;
+
+#[macro_export]
+macro_rules! log_trace {
+    ($($arg:tt)*) => (
+        log::trace!($($arg)*);
+    )
+}
+
+#[macro_export]
+macro_rules! log_debug {
+    ($($arg:tt)*) => (
+        log::debug!($($arg)*);
+    )
+}
+
+#[macro_export]
+macro_rules! log_info {
+    ($($arg:tt)*) => (
+        log::info!($($arg)*);
+    )
+}
+
+#[macro_export]
+macro_rules! log_warn {
+    ($($arg:tt)*) => (
+        log::warn!($($arg)*);
+    )
+}
+
+#[macro_export]
+macro_rules! log_error {
+    ($($arg:tt)*) => (
+        log::error!($($arg)*);
+    )
+}
 
 pub fn init_logger()
 {
@@ -123,11 +157,11 @@ pub fn log_stat(msg: &str)
 
 pub fn test_log()
 {
-    trace!("This is a trace message");
-    debug!("This is a debug message");
-    info!("This is an info message");
-    warn!("This is an warn message");
-    error!("This is an error message");
+    log_trace!("This is a trace message");
+    log_debug!("This is a debug message");
+    log_info!("This is an info message");
+    log_warn!("This is an warn message");
+    log_error!("This is an error message");
 
     log_stat("This is a stat message");
 }
