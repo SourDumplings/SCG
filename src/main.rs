@@ -4,6 +4,7 @@ mod entity;
 mod resource;
 mod system;
 
+use core::logger::{init_logger, test_log}; // 导入 init_logger 函数
 use core::window::window_conf;
 use core::world::initialize_world;
 use hecs::World;
@@ -11,6 +12,7 @@ use macroquad::prelude::*;
 use macroquad_text::Fonts;
 use resource::{SoundManager, SpriteManager};
 use rodio::OutputStream;
+use std::env;
 use std::path::Path;
 use std::time::{Duration, Instant}; // 导入 Instant 和 Duration
 use system::{fps_draw_system, input_handle_system, logic_tick_system, render_system};
@@ -19,6 +21,11 @@ use tokio::runtime::Builder;
 #[macroquad::main(window_conf)]
 async fn main()
 {
+    init_logger();
+    test_log();
+    // TODO：需要支持动态调整日志级别
+    // TODO：需要输出环境信息
+
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
     let mut world = World::new();
     let mut sprite_manager = SpriteManager::new();
