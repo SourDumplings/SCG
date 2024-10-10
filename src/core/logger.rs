@@ -10,6 +10,8 @@ use log4rs::{
     encode::pattern::PatternEncoder,
 };
 use std::env;
+use std::fs;
+use std::path::Path;
 
 #[macro_export]
 macro_rules! log_trace {
@@ -46,6 +48,23 @@ macro_rules! log_error {
     )
 }
 
+fn roll_log_file<P: AsRef<Path>>(log_path: P)
+{
+    if log_path.as_ref().exists()
+    {
+        let mut index = 1;
+        while log_path.as_ref().with_extension(index.to_string()).exists()
+        {
+            index += 1;
+        }
+        fs::rename(
+            &log_path,
+            log_path.as_ref().with_extension(index.to_string() + ".log"),
+        )
+        .unwrap();
+    }
+}
+
 pub fn init_logger()
 {
     // 获取可执行文件的路径
@@ -63,8 +82,9 @@ pub fn init_logger()
         )))
         .build();
 
-    // 创建第一个文件输出，按天和大小滚动
+    // 创建第一个文件输出，按大小滚动
     let app_log_path = log_dir.join("scg_app.log");
+    roll_log_file(&app_log_path); // 每次启动时滚动日志文件
     let window_roller_app = FixedWindowRoller::builder()
         .build("log/scg_app.{}.log", 7)
         .unwrap();
@@ -81,8 +101,9 @@ pub fn init_logger()
         )
         .unwrap();
 
-    // 创建第二个文件输出，按天和大小滚动
+    // 创建第二个文件输出，按大小滚动
     let stat_log_path = log_dir.join("scg_stat.log");
+    roll_log_file(&stat_log_path); // 每次启动时滚动日志文件
     let window_roller_stat = FixedWindowRoller::builder()
         .build("log/scg_stat.{}.log", 7)
         .unwrap();
