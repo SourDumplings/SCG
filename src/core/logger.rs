@@ -84,6 +84,20 @@ pub fn init_logger()
                 .additive(false)
                 .build("stat", log::LevelFilter::Info),
         )
+        /* crate log level adjust begin */
+        .logger(
+            Logger::builder()
+                .appender("scg_app")
+                .additive(false)
+                .build("symphonia_core::probe", log::LevelFilter::Warn),
+        )
+        .logger(
+            Logger::builder()
+                .appender("scg_app")
+                .additive(false)
+                .build("symphonia_bundle_mp3::demuxer", log::LevelFilter::Warn),
+        )
+        /* crate log level adjust begin */
         .build(
             Root::builder()
                 .appender("stdout")
